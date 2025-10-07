@@ -2,11 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 
 const serviceSchema = new Schema({
-    id: "string",          // unique id
-    title: "string",       // translated service title
-    excerpt: "string",     // short description
-    image: "string",       // path or URL to image
-    description: "string", 
-});
+    title: { type: String, required: true, trim: true },
+    excerpt: { type: String, required: true, trim: true, maxlength: 300 },
+    image: { type: String, required: true, trim: true },
+    description: { type: String, required: true },
+}, { timestamps: true });
 
-const ServiceModel = mongoose.model("Service", serviceSchema);
+serviceSchema.index({ title: 1 }, { unique: false });
+
+export const ServiceModel = mongoose.models.Service || mongoose.model("Service", serviceSchema);

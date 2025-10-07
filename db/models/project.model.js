@@ -2,11 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 
 const projectSchema = new Schema({
-    id: "string",        // unique identifier
-    title: "string",     // project title (localized with t)
-    description: "string", // detailed description
-    image: "string",     // image path or URL
-    category: "string",
-});
+    title: { type: String, required: true, trim: true },
+    description: { type: String, required: true },
+    image: { type: String, required: true, trim: true },
+    category: { type: String, required: true, trim: true },
+}, { timestamps: true });
 
-export const ProjectModel = mongoose.model("Project", projectSchema);
+projectSchema.index({ title: 1 }, { unique: false });
+
+export const ProjectModel = mongoose.models.Project || mongoose.model("Project", projectSchema);
