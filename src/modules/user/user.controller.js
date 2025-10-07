@@ -48,7 +48,7 @@ const createUser = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
-  const users = await UserModel.find({}, { password: 0 }).sort({ createdAt: -1 });
+  const users = await UserModel.find({}); //{/* { password: 0 } */}
   return res.json({ message: 'Users fetched successfully', users });
 };
 
