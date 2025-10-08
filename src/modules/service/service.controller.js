@@ -11,11 +11,19 @@ function buildQueryParams(query) {
 
 export async function listServices(req, res) {
   const { page, limit, skip, filter } = buildQueryParams(req.query || {})
-  const [items, total] = await Promise.all([
+  const [docs, total] = await Promise.all([
     ServiceModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
     ServiceModel.countDocuments(filter)
   ])
-  return res.json({ items, page, limit, total })
+  return res.json({ 
+    docs, 
+    page, 
+    limit, 
+    total,
+    totalPages: Math.ceil(total / limit),
+    hasNextPage: page < Math.ceil(total / limit),
+    hasPrevPage: page > 1
+  })
 }
 
 export async function getService(req, res) {
@@ -25,11 +33,11 @@ export async function getService(req, res) {
 }
 
 export async function createService(req, res) {
-  const { id, title, excerpt, image, description } = req.body || {};
+  const { title, excerpt, image, description } = req.body || {};
   if (!title || !excerpt || !image || !description) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
-  const doc = await ServiceModel.create({ id, title, excerpt, image, description });
+  const doc = await ServiceModel.create({ title, excerpt, image, description });
   return res.status(201).json(doc);
 }
 

@@ -15,11 +15,19 @@ function buildQueryParams(query) {
 
 export async function listProjects(req, res) {
   const { page, limit, skip, filter } = buildQueryParams(req.query || {})
-  const [items, total] = await Promise.all([
+  const [docs, total] = await Promise.all([
     ProjectModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
     ProjectModel.countDocuments(filter)
   ])
-  return res.json({ items, page, limit, total })
+  return res.json({ 
+    docs, 
+    page, 
+    limit, 
+    total,
+    totalPages: Math.ceil(total / limit),
+    hasNextPage: page < Math.ceil(total / limit),
+    hasPrevPage: page > 1
+  })
 }
 
 export async function getProject(req, res) {
@@ -29,11 +37,11 @@ export async function getProject(req, res) {
 }
 
 export async function createProject(req, res) {
-  const { id, title, description, image, category } = req.body || {};
+  const { title, description, image, category } = req.body || {};
   if (!title || !description || !image || !category) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
-  const doc = await ProjectModel.create({ id, title, description, image, category });
+  const doc = await ProjectModel.create({ title, description, image, category });
   return res.status(201).json(doc);
 }
 

@@ -8,9 +8,9 @@ const router = express.Router();
 router.post('/login', login);
 
 // Manager-only endpoints for admin management
-router.post('/createuser', createUser);
-router.get('/getusers', getUsers);
-router.put('/updateuser/:id', updateUser);
-router.delete('/deleteuser/:id', deleteUser);
+router.post('/', requireAuth(['manager']), createUser);
+router.get('/', requireAuth(['manager']), getUsers);
+router.put('/:id', requireAuth(['manager']), updateUser);
+router.delete('/:id', requireAuth(['manager']), deleteUser);
 
 export default router;
