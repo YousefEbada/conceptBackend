@@ -28,7 +28,7 @@ const emailTemplate = (email) => {
                 confirm your email address by clicking the button below.
               </p>
               <a
-                href="http://localhost:8080/users/verify/${tokenMail}"
+                href="https://conceptbackend.onrender.com/users/verify/${tokenMail}"
                 style="background-color:#1449e7; color:#ffffff; text-decoration:none; padding:12px 25px; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer; display:inline-block;"
               >
                 Verify Email
