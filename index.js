@@ -2,9 +2,12 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { dbConnection } from './db/dbConnection.js';
 import cors from 'cors';
+import multer from 'multer';
 import userRoutes from './src/modules/user/user.route.js';
 import serviceRoutes from './src/modules/service/service.route.js';
 import projectRoutes from './src/modules/project/project.route.js';
+import { ServiceModel } from './db/models/service.model.js';
+import { ProjectModel } from './db/models/project.model.js';
 // import { sendContactMail } from './src/utilities/Email/sendMail.js';
 // import { emailTemplate } from './src/utilities/Email/emailTemplate.js';
 
@@ -12,6 +15,22 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
 app.use(cors({
     origin: ["https://conceptccc.com", "https://www.conceptccc.com"],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -30,6 +49,33 @@ app.get('/', (req, res) => {
 // Health check for Postman
 app.get('/api/health', (req, res) => {
     res.json({ ok: true, env: process.env.NODE_ENV || 'development' });
+});
+
+// Image serving endpoints
+app.get('/api/images/service/:id', async (req, res) => {
+  try {
+    const service = await ServiceModel.findById(req.params.id);
+    if (!service || !service.image || !service.image.data) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+    res.set('Content-Type', service.image.contentType);
+    res.send(service.image.data);
+  } catch (error) {
+    res.status(500).json({ message: 'Error serving image' });
+  }
+});
+
+app.get('/api/images/project/:id', async (req, res) => {
+  try {
+    const project = await ProjectModel.findById(req.params.id);
+    if (!project || !project.image || !project.image.data) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+    res.set('Content-Type', project.image.contentType);
+    res.send(project.image.data);
+  } catch (error) {
+    res.status(500).json({ message: 'Error serving image' });
+  }
 });
 
 app.use('/api/auth', userRoutes);

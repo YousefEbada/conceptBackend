@@ -4,7 +4,10 @@ import mongoose, { Schema } from "mongoose";
 const serviceSchema = new Schema({
     title: { type: String, required: true, trim: true },
     excerpt: { type: String, required: true, trim: true, maxlength: 300 },
-    image: { type: String, required: true, trim: true },
+    image: {
+        data: { type: Buffer, required: true },
+        contentType: { type: String, required: true }
+    },
     description: { type: String, required: true },
 }, { timestamps: true });
 

@@ -37,20 +37,53 @@ export async function getProject(req, res) {
 }
 
 export async function createProject(req, res) {
-  const { title, description, image, category } = req.body || {};
-  if (!title || !description || !image || !category) {
-    return res.status(400).json({ message: 'Missing required fields' });
+  try {
+    const { title, description, category } = req.body || {};
+    if (!title || !description || !category) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: 'Image file is required' });
+    }
+    
+    const doc = await ProjectModel.create({ 
+      title, 
+      description, 
+      category,
+      image: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      }
+    });
+    return res.status(201).json(doc);
+  } catch (error) {
+    console.error('Create project error:', error);
+    return res.status(500).json({ message: 'Error creating project' });
   }
-  const doc = await ProjectModel.create({ title, description, image, category });
-  return res.status(201).json(doc);
 }
 
 export async function updateProject(req, res) {
-  const { id } = req.params;
-  const { title, description, image, category } = req.body || {};
-  const doc = await ProjectModel.findByIdAndUpdate(id, { title, description, image, category }, { new: true });
-  if (!doc) return res.status(404).json({ message: 'Not found' });
-  return res.json(doc);
+  try {
+    const { id } = req.params;
+    const { title, description, category } = req.body || {};
+    
+    const updateData = { title, description, category };
+    
+    // If new image is uploaded, update image data
+    if (req.file) {
+      updateData.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+    }
+    
+    const doc = await ProjectModel.findByIdAndUpdate(id, updateData, { new: true });
+    if (!doc) return res.status(404).json({ message: 'Not found' });
+    return res.json(doc);
+  } catch (error) {
+    console.error('Update project error:', error);
+    return res.status(500).json({ message: 'Error updating project' });
+  }
 }
 
 export async function deleteProject(req, res) {

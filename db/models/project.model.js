@@ -4,7 +4,10 @@ import mongoose, { Schema } from "mongoose";
 const projectSchema = new Schema({
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
-    image: { type: String, required: true, trim: true },
+    image: {
+        data: { type: Buffer, required: true },
+        contentType: { type: String, required: true }
+    },
     category: { type: String, required: true, trim: true },
 }, { timestamps: true });
 

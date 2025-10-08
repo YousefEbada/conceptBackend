@@ -33,20 +33,53 @@ export async function getService(req, res) {
 }
 
 export async function createService(req, res) {
-  const { title, excerpt, image, description } = req.body || {};
-  if (!title || !excerpt || !image || !description) {
-    return res.status(400).json({ message: 'Missing required fields' });
+  try {
+    const { title, excerpt, description } = req.body || {};
+    if (!title || !excerpt || !description) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: 'Image file is required' });
+    }
+    
+    const doc = await ServiceModel.create({ 
+      title, 
+      excerpt, 
+      description,
+      image: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      }
+    });
+    return res.status(201).json(doc);
+  } catch (error) {
+    console.error('Create service error:', error);
+    return res.status(500).json({ message: 'Error creating service' });
   }
-  const doc = await ServiceModel.create({ title, excerpt, image, description });
-  return res.status(201).json(doc);
 }
 
 export async function updateService(req, res) {
-  const { id } = req.params;
-  const { title, excerpt, image, description } = req.body || {};
-  const doc = await ServiceModel.findByIdAndUpdate(id, { title, excerpt, image, description }, { new: true });
-  if (!doc) return res.status(404).json({ message: 'Not found' });
-  return res.json(doc);
+  try {
+    const { id } = req.params;
+    const { title, excerpt, description } = req.body || {};
+    
+    const updateData = { title, excerpt, description };
+    
+    // If new image is uploaded, update image data
+    if (req.file) {
+      updateData.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+    }
+    
+    const doc = await ServiceModel.findByIdAndUpdate(id, updateData, { new: true });
+    if (!doc) return res.status(404).json({ message: 'Not found' });
+    return res.json(doc);
+  } catch (error) {
+    console.error('Update service error:', error);
+    return res.status(500).json({ message: 'Error updating service' });
+  }
 }
 
 export async function deleteService(req, res) {
