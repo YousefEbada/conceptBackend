@@ -5,8 +5,8 @@ import cors from 'cors';
 import userRoutes from './src/modules/user/user.route.js';
 import serviceRoutes from './src/modules/service/service.route.js';
 import projectRoutes from './src/modules/project/project.route.js';
-import { sendContactMail } from './src/utilities/Email/sendMail.js';
-import { emailTemplate } from './src/utilities/Email/emailTemplate.js';
+// import { sendContactMail } from './src/utilities/Email/sendMail.js';
+// import { emailTemplate } from './src/utilities/Email/emailTemplate.js';
 
 dotenv.config();
 
